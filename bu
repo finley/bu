@@ -1,0 +1,295 @@
+#!/usr/bin/perl -w
+#
+#   "bu"
+#
+#   $Id: bu,v bfinley Exp $
+#  
+#   Copyright (C) 2003-2005 Brian Elliott Finley
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#   2004.11.16  Brian Elliott Finley
+#   - deal with paths properly (Ie: bu /path/to/file)
+#   - deal with directories (Ie: tar -cpjf)
+#   - give exit status equal to number of error incurred
+#
+#   2005.09.20  Brian Elliott Finley
+#   - add "edit after" feature via ~/.bu file
+#
+#   2005.09.23  Brian Elliott Finley
+#   - checked into svn
+#   - added option support (GetOpt)
+#   - use $VISUAL, $EDITOR from environment, or EDIT_WITH= in .burc
+#   - use .burc instead of .bu (suggestion by Michael Sternberg)
+#
+#   2005.09.30  Brian Elliott Finley
+#   - use quotes when displaying file and dir names
+#   - use quotes when editing file names
+
+################################################################################
+#
+#   Use stuff
+#
+use strict;
+use File::Basename;
+use Getopt::Long;
+use vars qw($VERSION $quiet);
+#
+################################################################################
+
+
+################################################################################
+#
+#   Variables
+#
+my $VERSION = '1.2';
+my $timestamp = `date +%Y.%m.%d-%H:%M:%S`;
+chomp $timestamp;
+our $error_level = 0;
+our %o;         # hash to hold our options
+#
+################################################################################
+
+# set some defaults
+$o{'source'}    = 'both';
+our @email_addresses = ();      # --email ADDRESSes
+my $db;
+
+GetOptions(
+        "help"                  => \$o{'help'},
+        "version"               => \$o{'version'},
+        "debug"                 => \$o{'debug'},
+) or usage() and exit(1);
+
+validate_options();
+main();
+
+exit 0;  # will actually exit in main(), but just for reference purposes...
+
+
+
+
+
+################################################################################
+#
+#   Subroutines
+#
+
+#
+#   Main
+#
+
+sub usage {
+
+	print << "EOF";
+
+Usage: bu FILE1 [FILE2, FILE3, ...]
+   or: bu DIR1 [DIR2, FILE1, ...]
+
+     A directory named RETIRED will be used to hold backups, and will be
+     created in the same base directory as the file or directory to be
+     backed up, if it doesn't already exist.
+
+     Files will be copied to the RETIRED directory, timestamped, and bzipped.
+
+     Directories will be tarred, timestamped, and bzipped.  The resulting
+     tarball will be named to match the name of the leaf directory being
+     backed up, and will be created directly in the RETIRED directory.
+
+     You create a file called ~/.burc and can add the following entries
+     to open the file in your favorite editor after backing it up (which
+     is what I almost always end up doing anyway).  Of course it won't try
+     to edit a directory, eh?
+
+         EDIT_AFTER_WITH=vim
+
+     You will be told what's happening as it happens.
+
+     Have fun!
+
+EOF
+
+}
+
+
+sub main {
+
+	foreach my $file (@ARGV) {
+	    backup_file($file);
+	    edit_file($file) if( want_edit() );
+	}
+	
+	exit $error_level;
+}
+
+
+#
+# validate_options
+#
+sub validate_options {
+
+        # standard stuff
+        if($o{'help'})    { usage()   and exit(0); }
+        if($o{'version'}) { version() and exit(0); }
+        if (! $ARGV[0])	  { usage()   and exit(1); }
+
+}
+
+
+sub choose_editor {
+
+    my $file = $ENV{HOME} . "/.burc";
+    my $editor = undef;
+
+    open(FILE,"<$file") or die("Couldn't open $file for reading");
+        while(<FILE>) {
+            if( m/^EDIT_WITH=(.*)(\s+|$)/ ) {
+                $editor = $1;
+            }
+        }
+    close(FILE);
+    
+    if(! $editor) {
+    	if( defined($ENV{EDITOR}) and ( $ENV{EDITOR} ne "" ) ) {
+    	    $editor = $ENV{EDITOR};
+    	    
+    	} elsif( defined($ENV{VISUAL}) and ( $ENV{VISUAL} ne "" ) ) { 
+    	    $editor = $ENV{VISUAL};
+    	    
+    	} else {
+    	    $editor = 'vi';
+    	}
+    }
+    print "EDITOR -> $editor\n" if( defined($o{'debug'}) );
+
+    return $editor;
+}
+
+
+sub want_edit {
+
+    my $file = $ENV{HOME} . "/.burc";
+
+    if( ! -e $file ) { return undef; }
+
+    my $editor = undef;
+
+    open(FILE,"<$file") or die("Couldn't open $file for reading");
+        while(<FILE>) {
+            if( m/^EDIT_AFTER=yes\s*/ ) {
+                return 1;
+            }
+        }
+    close(FILE);
+
+    return undef;
+}
+
+sub edit_file {
+
+    my $file = shift;
+
+    if( ! -T $file ) {
+        print qq(Not editing: "$file"\n);
+        return 1;
+    }
+
+    print qq(Editing file: "$file"\n);
+    sleep 1;
+
+    my $editor = choose_editor();
+    #my $cmd = $editor . " " . '"' . $file . '"';
+    my $cmd = qq($editor "$file");
+    !system($cmd) or die("Couldn't $cmd");
+
+    return 1;
+
+}
+
+sub backup_file {
+
+    my $fullname = shift;
+
+    my $cmd;
+
+    if( ! -e $fullname ) {
+        print "Skipping file that doesn't exist: $fullname\n";
+        $error_level++;
+        return 1;
+    }
+
+    my $basename = basename($fullname);
+    my $dirname = dirname($fullname);
+    my $backup_dir = "$dirname/RETIRED";
+    mk_backup_dir($backup_dir);
+
+    if( -d $fullname ) {
+
+        $fullname =~ s#/$##;
+        print qq(Backing up directory: "$fullname"\n);
+
+        $basename = $fullname;
+        $basename =~ s#.*/##;
+
+        # make copy w/timestamp
+        $cmd = "tar -cpjf '$backup_dir/${basename}__${timestamp}.tar.bz2' '$fullname'";
+        !system($cmd) or die("Couldn't $cmd");
+
+    } else {
+
+        print qq(Backing up file: "$fullname"\n);
+
+        # make copy w/timestamp
+        $cmd = "cp '$fullname' '$backup_dir/${basename}__$timestamp'";
+        !system($cmd) or die("Couldn't $cmd");
+
+        # compress file
+        $cmd = "bzip2 '$backup_dir/${basename}__$timestamp'";
+        !system($cmd) or die("Couldn't $cmd");
+    }
+
+}
+
+sub mk_backup_dir {
+
+    my $backup_dir = shift;
+
+    if(! -d $backup_dir) {
+        print "Creating the $backup_dir directory for backup files.\n";
+        mkdir($backup_dir) or die($!);
+    } else {
+        print "Using the $backup_dir directory for backup files.\n";
+    }
+
+    return 1;
+}
+
+
+sub version {
+        my $progname = basename($0);
+        my $VERSION = '$Revision: 1.7 $';
+        $VERSION =~ s/(.Revision: | .$)//g;
+        print <<EOF;
+$progname v$VERSION
+  Brian Elliott Finley and others.
+  See CREDITS for details.
+EOF
+
+        return 1;
+}
+
+
+#
+################################################################################

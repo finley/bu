@@ -1,0 +1,13 @@
+Source: bu
+Version: 1.0
+Section: unknown
+Priority: optional
+Maintainer: Scott Behrens <behrens@mcs.anl.gov>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.1
+
+Package: bu
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, bzip2(>= 1.0.2-1), libbz2-1.0, libc6 (>= 2.2.4-4)
+Description: A shell program to back up files using timestamp as file name and compression with bzip.
+ This program does things and stuff.
