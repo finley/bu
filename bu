@@ -4,7 +4,7 @@
 #
 #   $Id: bu,v bfinley Exp $
 #  
-#   Copyright (C) 2003-2005 Brian Elliott Finley
+#   Copyright (C) 2003-2014 Brian Elliott Finley
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -98,20 +98,22 @@ sub usage {
 Usage: bu FILE1 [FILE2, FILE3, ...]
    or: bu DIR1 [DIR2, FILE1, ...]
 
-     A directory named RETIRED will be used to hold backups, and will be
-     created in the same base directory as the file or directory to be
-     backed up, if it doesn't already exist.
+     A directory named .bu_backups will be used to hold backups, and
+     will be created in the same base directory as the file or directory
+     to be backed up, if it doesn't already exist.
 
-     Files will be copied to the RETIRED directory, timestamped, and bzipped.
+     Files will be copied to the .bu_backups directory, timestamped, and
+     bzipped.
 
-     Directories will be tarred, timestamped, and bzipped.  The resulting
-     tarball will be named to match the name of the leaf directory being
-     backed up, and will be created directly in the RETIRED directory.
+     Directories will be tarred, timestamped, and bzipped.  The
+     resulting tarball will be named to match the name of the leaf
+     directory being backed up, and will be created directly in the
+     .bu_backups directory.
 
      You create a file called ~/.burc and can add the following entries
      to open the file in your favorite editor after backing it up (which
-     is what I almost always end up doing anyway).  Of course it won't try
-     to edit a directory, eh?
+     is what I almost always end up doing anyway).  Of course it won't
+     try to edit a directory, eh?
 
          EDIT_AFTER_WITH=vim
 
@@ -232,7 +234,7 @@ sub backup_file {
 
     my $basename = basename($fullname);
     my $dirname = dirname($fullname);
-    my $backup_dir = "$dirname/RETIRED";
+    my $backup_dir = "$dirname/.bu_backups";
     mk_backup_dir($backup_dir);
 
     if( -d $fullname ) {
