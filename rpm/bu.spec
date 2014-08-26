@@ -1,6 +1,6 @@
 Name:         bu
 Summary:      Manage the state of specific files and packages on a system.
-Version:      0.4.61
+Version:      1.4
 Release:      1
 BuildArch:    noarch
 Group:        System Environment/Applications
