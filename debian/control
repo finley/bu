@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Brian Elliott Finley <brian@thefinleys.com>
 Build-Depends: debhelper (>= 9), txt2man
-Standards-Version: 3.9.3
+Standards-Version: 3.9.5
 
 Package: bu
 Provides: bu
