@@ -58,20 +58,20 @@ release:  tarball debs rpms
 	@echo "Now run:   cd ~/src/www.systemimager.org/ && make upload"
 	@echo
 
-#.PHONY: rpm
-#rpm:  rpms
-#
-#.PHONY: rpms
-#rpms:  tarball
-#	@echo Bake them cookies, grandma!
-#	# Quick hack to get rpmbuild to work on Lucid -- was failing w/bzip2 archive
-#	# Turn it into a gz archive instead of just tar to avoid confusion about canonical archive -BEF-
-#	bzcat $(TOPDIR)/tmp/${package}-$(VERSION).tar.bz2 | gzip > $(TOPDIR)/tmp/${package}-$(VERSION).tar.gz 
-#	rpmbuild -ta $(TOPDIR)/tmp/${package}-$(VERSION).tar.gz
-#	/bin/cp -i ${rpmbuild}/RPMS/*/${package}-$(VERSION)-*.rpm $(TOPDIR)/tmp/
-#	/bin/cp -i ${rpmbuild}/SRPMS/${package}-$(VERSION)-*.rpm	$(TOPDIR)/tmp/
-#	
-#	/bin/ls -1 $(TOPDIR)/tmp/${package}[-_]$(VERSION)*.*
+.PHONY: rpm
+rpm:  rpms
+
+.PHONY: rpms
+rpms:  tarball
+	@echo Bake them cookies, grandma!
+	# Quick hack to get rpmbuild to work on Lucid -- was failing w/bzip2 archive
+	# Turn it into a gz archive instead of just tar to avoid confusion about canonical archive -BEF-
+	bzcat $(TOPDIR)/tmp/${package}-$(VERSION).tar.bz2 | gzip > $(TOPDIR)/tmp/${package}-$(VERSION).tar.gz 
+	rpmbuild -ta $(TOPDIR)/tmp/${package}-$(VERSION).tar.gz
+	/bin/cp -i ${rpmbuild}/RPMS/*/${package}-$(VERSION)-*.rpm $(TOPDIR)/tmp/
+	/bin/cp -i ${rpmbuild}/SRPMS/${package}-$(VERSION)-*.rpm	$(TOPDIR)/tmp/
+	
+	/bin/ls -1 $(TOPDIR)/tmp/${package}[-_]$(VERSION)*.*
 
 .PHONY: deb
 deb:  debs
@@ -101,11 +101,11 @@ $(TOPDIR)/tmp/${package}-$(VERSION).tar.bz2:  clean
 	@echo 'dch --release "" --distribution stable --no-force-save-on-release'
 	@echo 'head debian/changelog'
 	@echo
-	#@echo '# RPM bits next'
-	#@echo 'perl -pi -e "s/^Version:.*/Version:      $$ver/" rpm/bu.spec'
-	#@echo 'head rpm/bu.spec'
-	#@echo '# dont worry about changelog entries in spec file for now...  #vim rpm/bu.spec'
-	#@echo
+	@echo '# RPM bits next'
+	@echo 'perl -pi -e "s/^Version:.*/Version:      $$ver/" rpm/bu.spec'
+	@echo 'head rpm/bu.spec'
+	@echo '# dont worry about changelog entries in spec file for now...  #vim rpm/bu.spec'
+	@echo
 	@echo '# commit changes and go'
 	@echo 'git commit -m "prep for v$$ver" -a'
 	@echo 'git tag v$$ver'
