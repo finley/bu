@@ -1,3 +1,9 @@
+bu (1.1-2) UNRELEASED; urgency=medium
+
+  * Changed backup directory from RETIRED to .bu_backups to avoid conflicts with certain includes dirs, such as /etc/modprobe.d/, etc.
+
+ -- Brian Elliott Finley <brian@thefinleys.com>  Wed, 13 Aug 2014 22:14:20 -0500
+
 bu (1.1-1) unstable; urgency=high
 
   * Edit Feature Added.

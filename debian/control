@@ -1,13 +1,27 @@
 Source: bu
-Version: 1.0
-Section: unknown
+Section: admin
 Priority: optional
-Maintainer: Scott Behrens <behrens@mcs.anl.gov>
-Build-Depends: debhelper (>= 4.0.0)
-Standards-Version: 3.6.1
+Maintainer: Brian Elliott Finley <brian@thefinleys.com>
+Build-Depends: debhelper (>= 9), txt2man
+Standards-Version: 3.9.3
 
 Package: bu
+Provides: bu
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, bzip2(>= 1.0.2-1), libbz2-1.0, libc6 (>= 2.2.4-4)
-Description: A shell program to back up files using timestamp as file name and compression with bzip.
- This program does things and stuff.
+Depends: ${shlibs:Depends}, ${misc:Depends}, bzip2
+Description: Have you ever edited a file, then realized, "Oh -- I should make a
+ backup of that first."  So you copy /etc/hosts to /etc/hosts.date_stamp,
+ etc.  That's what this tool does in an easy to use, consistent and
+ simple way.
+ .
+ The command 'bu /etc/hosts' copies /etc/hosts to
+ /etc/.bu_backups/hosts__2014.08.14-22:02:59.bz2.  Conveniently date and
+ time stamped in a naturally sortable way.
+ .
+ The command 'bu /etc' will create a tarball of /etc named in the same
+ fashion: /.bu_backups/etc__2014.08.14-22:03:07.tar.bz2.
+ .
+ Multiple items can be specified at the same time: 'bu this that /the/other'
+ .
+ http://download.systemimager.org/pub/bu/
+
