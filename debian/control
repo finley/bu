@@ -8,7 +8,7 @@ Standards-Version: 3.9.3
 Package: bu
 Provides: bu
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, bzip2
+Depends: ${misc:Depends}, bzip2, tar
 Description: Have you ever edited a file, then realized, "Oh -- I should make a
  backup of that first."  So you copy /etc/hosts to /etc/hosts.date_stamp,
  etc.  That's what this tool does in an easy to use, consistent and
