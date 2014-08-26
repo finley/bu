@@ -47,7 +47,7 @@ mv $RPM_BUILD_ROOT/%{_prefix}/share/doc/%{name} $RPM_BUILD_ROOT/%{_prefix}/share
 
 %files
 %defattr(-,root,root)
-%{_prefix}/sbin/*
+%{_prefix}/bin/*
 %{_prefix}/share/*
 
 
