@@ -1,3 +1,11 @@
+bu (1.5) stable; urgency=medium
+
+  * e098bdf - Add MIGRATE_EXISTING=yes option.
+  * 4b2a7a7 .
+  * 0adcac9 prep for v1.4
+
+ -- Brian Elliott Finley <brian@thefinleys.com>  Tue, 02 Sep 2014 20:04:16 -0500
+
 bu (1.4) stable; urgency=medium
 
   * Changed backup directory from RETIRED to .bu_backups to avoid conflicts with certain includes dirs, such as /etc/modprobe.d/, etc.
