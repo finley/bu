@@ -43,6 +43,7 @@
 #   Use stuff
 #
 use strict;
+use File::Copy;
 use File::Basename;
 use Getopt::Long;
 use vars qw($VERSION $quiet);
@@ -59,6 +60,7 @@ my $timestamp = `date +%Y.%m.%d-%H:%M:%S`;
 chomp $timestamp;
 our $error_level = 0;
 our %o;         # hash to hold our options
+our $migrate_existing;
 #
 ################################################################################
 
@@ -110,14 +112,30 @@ Usage: bu FILE1 [FILE2, FILE3, ...]
      directory being backed up, and will be created directly in the
      .bu_backups directory.
 
-     You create a file called ~/.burc and can add the following entries
-     to open the file in your favorite editor after backing it up (which
-     is what I almost always end up doing anyway).  Of course it won't
-     try to edit a directory, eh?
-
-         EDIT_AFTER_WITH=vim
-
      You will be told what's happening as it happens.
+
+
+     Configuration options:
+
+        You create an optional configuration file called ~/.burc which
+        will control certabin behavior of 'bu'.
+        
+        EDIT_AFTER_WITH=vim
+
+            Open FILEs after in your favorite editor after backing up,
+            which is what I almost always end up doing anyway.  Of
+            course it won't try to edit a directory, eh?
+
+        MIGRATE_EXISTING=yes
+
+            bu used to use a directory named RETIRED instead of
+            .bu_backups.  When set to yes, if bu finds an existing
+            RETIRED directory when performing a backup, it will migrate
+            the contents into the new .bu_backups directory, then remove
+            the old RETIRED directory.
+
+            Default:  no
+
 
      Have fun!
 
@@ -128,6 +146,7 @@ EOF
 
 sub main {
 
+    $migrate_existing = should_i_migrate_existing();
 	foreach my $file (@ARGV) {
 	    backup_file($file);
 	    edit_file($file) if( want_edit() );
@@ -146,7 +165,22 @@ sub validate_options {
         if($o{'help'})    { usage()   and exit(0); }
         if($o{'version'}) { version() and exit(0); }
         if (! $ARGV[0])	  { usage()   and exit(1); }
+}
 
+
+sub should_i_migrate_existing {
+
+    my $file = $ENV{HOME} . "/.burc";
+
+    open(FILE,"<$file") or die("Couldn't open $file for reading");
+        while(<FILE>) {
+            if( m/^MIGRATE_EXISTING=yes/i ) {
+                return 'yes';
+            }
+        }
+    close(FILE);
+
+    return undef;
 }
 
 
@@ -236,6 +270,22 @@ sub backup_file {
     my $dirname = dirname($fullname);
     my $backup_dir = "$dirname/.bu_backups";
     mk_backup_dir($backup_dir);
+
+    if( $migrate_existing ) {
+
+        my $existing = "$dirname/RETIRED";
+        if( -d "$existing" ) {
+            print "Migrating existing RETIRED directory contents to the new .bu_backups directory.\n";
+            opendir(my $dh, $existing) || die("Couldn't open $existing for reading");
+            while(readdir $dh) {
+                my $file = "$existing/$_";
+                next unless -f $file;
+                move("$file", "$backup_dir") or die "mv $_ $backup_dir failed: $!"; 
+            }
+            closedir($dh);
+            rmdir $existing;
+        }
+    }
 
     if( -d $fullname ) {
 
