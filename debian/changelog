@@ -1,3 +1,10 @@
+bu (1.6) stable; urgency=medium
+
+  * 03e3a38 - Don't fail when no .burc file exists
+  * fea5214 .
+
+ -- Brian Elliott Finley <brian@thefinleys.com>  Tue, 16 Dec 2014 15:28:58 -0600
+
 bu (1.5) stable; urgency=medium
 
   * e098bdf - Add MIGRATE_EXISTING=yes option.
