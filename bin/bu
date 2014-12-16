@@ -172,13 +172,15 @@ sub should_i_migrate_existing {
 
     my $file = $ENV{HOME} . "/.burc";
 
-    open(FILE,"<$file") or die("Couldn't open $file for reading");
-        while(<FILE>) {
-            if( m/^MIGRATE_EXISTING=yes/i ) {
-                return 'yes';
+    if( -e $file) {
+        open(FILE,"<$file") or die("Couldn't open $file for reading");
+            while(<FILE>) {
+                if( m/^MIGRATE_EXISTING=yes/i ) {
+                    return 'yes';
+                }
             }
-        }
-    close(FILE);
+        close(FILE);
+    }
 
     return undef;
 }
