@@ -1,1 +1,2 @@
 - detect special files and handle them via tarball
+- handle files with single quotes in the file name
