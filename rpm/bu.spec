@@ -1,10 +1,10 @@
 Name:         bu
 Summary:      Manage the state of specific files and packages on a system.
-Version:      1.6
+Version:      1.7
 Release:      1
 BuildArch:    noarch
 Group:        System Environment/Applications
-Requires:     tar
+Requires:     tar, bzip2
 License:      GPLv2
 URL:          http://download.systemimager.org/pub/bu/
 Source:       http://download.systemimager.org/pub/bu/%{name}-%{version}.tar.bz2
