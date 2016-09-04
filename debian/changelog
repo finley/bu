@@ -1,3 +1,11 @@
+bu (1.7) stable; urgency=medium
+
+  * 658ea94 .
+  * 22f6618 sign tarball
+  * 7f470d2 add bzip2 to package 'requires'
+
+ -- Brian Finley <bfinley@tbob>  Sun, 04 Sep 2016 14:26:57 -0500
+
 bu (1.6) stable; urgency=medium
 
   * 03e3a38 - Don't fail when no .burc file exists
