@@ -1,2 +1,19 @@
+- Add an /etc/bu/bu.conf file with a list of directories to either not backup,
+  or to backup to an alternate backup dir name.
+
+    [backup_dirs]
+    #
+    # Path                            [BackupDir or DONT_BACKUP]
+    #
+    /etc/sysconfig/network-scripts    BACKUPS
+
+
+  Also include a directive to specify the default backup directory name.
+
+    BackupDir = .bu_backups
+
+
 - detect special files and handle them via tarball
 - handle files with single quotes in the file name
+
+
